@@ -15,9 +15,8 @@ TIME_SYNC_FREQUENCY = getattr(config, 'TIME_SYNC_FREQUENCY', 1)  # Default: 1 mi
 TIME_TOLERANCE_SECONDS = getattr(config, 'TIME_TOLERANCE_SECONDS', 60)  # Sync if difference > 1 minute
 ENABLE_TIME_SYNC = getattr(config, 'ENABLE_TIME_SYNC', True)  # Enable/disable time sync
 
-# Google Chat webhook configuration
-GOOGLE_CHAT_WEBHOOK = getattr(config, 'GOOGLE_CHAT_WEBHOOK', 
-    'https://chat.googleapis.com/v1/spaces/AAQAFEE2cks/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=aGU8DZ78bEsLdnJ6BSWMFx2pWvq062cX_ZUd-NjUbgI')
+# Google Chat webhook configuration - read from config file
+GOOGLE_CHAT_WEBHOOK = getattr(config, 'GOOGLE_CHAT_WEBHOOK', None)
 ENABLE_CHAT_NOTIFICATIONS = getattr(config, 'ENABLE_CHAT_NOTIFICATIONS', True)
 
 
@@ -39,6 +38,10 @@ def setup_time_sync_logger(name, log_file, level=logging.INFO):
 def send_google_chat_message(message, device_id=None, device_ip=None):
     """Send notification to Google Chat webhook"""
     if not ENABLE_CHAT_NOTIFICATIONS or not GOOGLE_CHAT_WEBHOOK:
+        return False
+    
+    if not GOOGLE_CHAT_WEBHOOK:
+        time_sync_logger.warning("Google Chat notifications are enabled but GOOGLE_CHAT_WEBHOOK is not configured in local_config.py")
         return False
     
     try:
